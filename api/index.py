@@ -45,9 +45,13 @@ def metrics(request: MetricsRequest) -> Dict[str, Any]:
         if region_data.empty:
             continue  # skip if no data for that region
 
+        #avg_latency = region_data["latency_ms"].mean()
         avg_latency = region_data["latency_ms"].mean()
+
         p95_latency = region_data["latency_ms"].quantile(0.95)
-        avg_uptime = region_data["uptime"].mean()
+        #avg_uptime = region_data["uptime"].mean()
+        avg_uptime = region_data["uptime_pct"].mean()
+
         breaches = (region_data["latency_ms"] > threshold).sum()
 
         result[region] = {
