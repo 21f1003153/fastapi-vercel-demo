@@ -7,40 +7,47 @@ from pathlib import Path
 
 app = FastAPI()
 
-# Enable CORS (allow all origins)
+# Enable CORS for POST requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["POST"],
     allow_headers=["*"],
 )
 
-# Load JSON dataset at startup
-DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "q-vercel-latency.json"
-with open(DATA_PATH, "r") as f:
-    telemetry = pd.DataFrame(json.load(f))
+# Load telemetry data (your JSON file)
+with open(Path(__file__).parent / "../q-vercel-latency.json") as f:
+    telemetry_data = json.load(f)
+
+df = pd.DataFrame(telemetry_data)
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello, World"}
 
 @app.post("/metrics")
-async def get_metrics(req: Request):
-    body = await req.json()
+async def metrics(request: Request):
+    body = await request.json()
     regions = body.get("regions", [])
-    threshold = body.get("threshold_ms", 200)
+    threshold = body.get("threshold_ms", 180)
 
     result = {}
     for region in regions:
-        df = telemetry[telemetry["region"] == region]
-        if df.empty:
+        region_data = df[df["region"] == region]
+
+        if region_data.empty:
             continue
 
-        latencies = df["latency_ms"].to_numpy()
-        uptimes = df["uptime_pct"].to_numpy()
+        avg_latency = region_data["latency_ms"].mean()
+        p95_latency = np.percentile(region_data["latency_ms"], 95)
+        avg_uptime = region_data["uptime"].mean()
+        breaches = (region_data["latency_ms"] > threshold).sum()
 
         result[region] = {
-            "avg_latency": round(latencies.mean(), 2),
-            "p95_latency": round(np.percentile(latencies, 95), 2),
-            "avg_uptime": round(uptimes.mean() / 100, 3),  # convert pct to fraction
-            "breaches": int((latencies > threshold).sum())
+            "avg_latency": round(avg_latency, 2),
+            "p95_latency": round(p95_latency, 2),
+            "avg_uptime": round(avg_uptime, 2),
+            "breaches": int(breaches),
         }
 
     return result
