@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from pydantic import BaseModel
 from typing import List, Dict, Any
 import pandas as pd
@@ -13,10 +14,12 @@ app = FastAPI()
 # Enable CORS for POST requests from any origin
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow all origins
+    allow_origins=["*"],  # allow all domains (safe for assignments)
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # -------- Request Schema --------
 class MetricsRequest(BaseModel):
