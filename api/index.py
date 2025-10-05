@@ -71,7 +71,7 @@ def read_root():
 #             "breaches": int(breaches)
 #         }
 
-    @app.post("/metrics")
+@app.post("/metrics")
 async def metrics(request: Request):
     body = await request.json()
     regions = body.get("regions", [])
