@@ -27,12 +27,14 @@ class MetricsRequest(BaseModel):
     threshold_ms: int
 
 # -------- Load data --------
-data_path = Path(__file__).parent.parent / "data" / "q-vercel-latency.json"
-df = pd.read_json(data_path)
+# data_path = Path(__file__).parent.parent / "data" / "q-vercel-latency.json"
+# df = pd.read_json(data_path)
 
-# Load telemetry data (your JSON file)
-with open(Path(__file__).parent / "../q-vercel-latency.json") as f:
-    telemetry_data = json.load(f)
+# # Load telemetry data (your JSON file)
+# with open(Path(__file__).parent / "../q-vercel-latency.json") as f:
+#     telemetry_data = json.load(f)
+data_path = Path(__file__).parent.parent / "q-vercel-latency.json"
+df = pd.read_json(data_path)
 
 df = pd.DataFrame(telemetry_data)
 
