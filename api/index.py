@@ -17,7 +17,6 @@ app.add_middleware(
     allow_origins=["*"],  # allow all domains (safe for assignments)
     allow_credentials=True,
     allow_methods=["POST"],
-    allow_methods=["*"],
     allow_headers=["*"],
 )
 
